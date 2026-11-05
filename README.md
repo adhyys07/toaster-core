@@ -23,6 +23,29 @@ The current checkout intentionally contains no binary files. The locally
 downloaded DLLs were not uploaded because their redistribution permissions were
 not verified.
 
+## cores/manifest.txt
+
+Toaster loads cores as native code, so it checks every download against
+`cores/manifest.txt` and refuses to install a core that does not match. Without
+this file the installer reports that the server has no manifest and stops.
+
+Regenerate it whenever a DLL in `cores/` changes, or the stale checksums will
+reject the new file:
+
+```bash
+cd cores && sha256sum -t *.dll > manifest.txt
+```
+
+The `-t` matters. `sha256sum` defaults to binary mode on Windows and writes
+`<hash> *name`; the asterisk is then read as part of the filename, so the
+manifest parses but matches nothing.
+
+Verify before deploying:
+
+```bash
+cd cores && sha256sum -c manifest.txt
+```
+
 ## Coolify deployment
 
 1. Create a Coolify application from this repository.
